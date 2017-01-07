@@ -46,6 +46,7 @@ class UI_SampleMainForm(object):
 
         #获取窗口大小
         self.widRect = Form.frameGeometry()
+
         ##控件布局
         #定义整个垂直布局内的QWidget面板
         self.VLayoutWidget = QtGui.QWidget(Form)
@@ -135,31 +136,48 @@ class UI_SampleMainForm(object):
         self.currentFrameNum = -1
         self.On_Action_Next(None)
 
+    def __getParentClientSize(self):
+        return self.scrollArea.size() - QtCore.QSize(
+            self.scrollArea.verticalScrollBar().width(),
+            self.scrollArea.horizontalScrollBar().height())
+
+    def showImage(self):
+        dis = (abs(self.horizontalLayout.geometry().left() - 0),
+               abs(self.horizontalLayout.geometry().right() - self.mainframe.width()),
+               abs(self.horizontalLayout.geometry().top() - 0),
+               abs(self.mainframe.height() - self.scrollArea.geometry().bottom()))
+        #从文件夹加载图像
+        self.qImg.load(self.filePathsList[self.currentFrameNum])
+        #显示到QLabel对象，并调整QLabel对象的尺寸为图像尺寸
+        self.label.setPixmap(self.qImg)
+        self.label.setGeometry(self.qImg.rect())
+        # #设置 QScrollArea 对象中 QWidget 区域的大小
+        self.scrollAreaWidgetContents.setMinimumSize(self.qImg.size())
+        # # #根据图像大小调整scrollArea大小
+        self.scrollArea.setMaximumSize(self.qImg.size() + QtCore.QSize(self.scrollArea.verticalScrollBar().width(),
+                                                                       self.scrollArea.horizontalScrollBar().height()))
+        #求当前图像对象的基础上窗口允许的最大尺寸
+        # print self.horizontalLayout.geometry()
+        # print self.mainframe.size()
+        # print self.scrollArea.geometry()
+        # print dis
+        self.mainframe.setMaximumSize(self.scrollArea.maximumSize() + QtCore.QSize(
+            dis[0]+dis[1], self.HSlider_imgScale.height()+dis[2]+dis[3]))
+
     def On_Action_Next(self, event):
         if self.currentFrameNum + 1 < self.filePathsList.count():
             self.currentFrameNum += 1
-            self.qImg.load(self.filePathsList[self.currentFrameNum])
-            self.label.setPixmap(self.qImg)
-            self.label.setGeometry(self.qImg.rect())
-            self.scrollAreaWidgetContents.setMinimumSize(self.qImg.size())
-            # #根据图像大小调整scrollArea大小
-            # geo = self.scrollArea.geometry()
-            # geo.setSize(self.qImg.size())
-            # self.scrollArea.setGeometry(self.scrollArea.setGeometry(geo))
-
-        # self.mainframe.repaint()
+            self.showImage()
+        self.mainframe.repaint()
 
     def On_Action_Previous(self, event):
         if self.currentFrameNum - 1 >= 0:
             self.currentFrameNum -= 1
-            self.qImg.load(self.filePathsList[self.currentFrameNum])
-            self.label.setPixmap(self.qImg)
-            self.label.setGeometry(self.qImg.rect())
-            self.scrollAreaWidgetContents.setMinimumSize(self.qImg.size())
-        # self.mainframe.repaint()
+            self.showImage()
+        self.mainframe.repaint()
 
     def On_Action_ScreenShot(self, event):
-        self.copyForm = cf.CopyForm(self.qImg, self.label)
+        self.copyForm = cf.CopyForm(self.qImg, self.scrollArea)
 
     def retranslateUi(self, Form):
         """

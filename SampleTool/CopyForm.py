@@ -16,12 +16,20 @@ class CopyForm(QtGui.QWidget):
         self.updateImgFlag = False
         self.setGeometry(0, 0, self.widSize.width(), self.widSize.height())
 
+        # print self.parentClientSize
+
         self.ui = uicf.UI_CopyForm(self)
 
         self.show()
 
+    def __getParentClientSize(self):
+        self.parentClientSize = self.parentWid.size() - QtCore.QSize(
+            self.parentWid.verticalScrollBar().width(),
+            self.parentWid.horizontalScrollBar().height())
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
+            self.__getParentClientSize()
             self.dragPosition = event.globalPos() - self.frameGeometry().topLeft()
             QApplication.postEvent(self, QEvent(174))
             event.accept()
@@ -30,22 +38,24 @@ class CopyForm(QtGui.QWidget):
     def mouseMoveEvent(self, event):
         if event.buttons() == Qt.LeftButton:
             newPos = event.globalPos() - self.dragPosition
-            print 'newPos', newPos
+            # print 'newPos', newPos
             if newPos.x() <= 0:
                 newPos.setX(0)
-            """写到这里，要完成copy窗口大在底部不再走的判断"""
-            elif newPos.x() >= self.parentWid.geometry().bottomLeft().x() - self.width():
-                newPos.setX(self.parentWid.geometry().bottomLeft().x() - self.width())
+            elif newPos.x() >= (self.parentClientSize.width() - self.width()):
+                # print self.parentWid.geometry()
+                # print self.parentClientSize
+                newPos.setX(self.parentClientSize.width() - self.width())
             if newPos.y() <= 0:
                 newPos.setY(0)
-            # if
+            elif newPos.y() >= (self.parentClientSize.height() - self.height()):
+                newPos.setY(self.parentClientSize.height() - self.height())
 
             self.move(newPos)
             self.UpdateImg()
             event.accept()
 
     def UpdateImg(self):
-        print self.geometry()
+        # print self.geometry()
         self.subImg = self.parentqImg.copy(self.geometry())
         self.updateImgFlag = True
         self.repaint()
@@ -56,10 +66,12 @@ class CopyForm(QtGui.QWidget):
         if self.updateImgFlag:
             qp = QtGui.QPainter()
             qp.begin(self.subImg)
-            qp.setPen(QtGui.QColor(255, 0, 0))
+            pen = QtGui.QPen(QtGui.QColor(255, 0, 0))
+            pen.setWidth(2)
+            qp.setPen(pen)
             drawRect = self.rect()
-            drawRect.setBottom(drawRect.bottom() - 1)
-            drawRect.setRight(drawRect.right() - 1)
+            drawRect.setBottom(drawRect.bottom() - 2)
+            drawRect.setRight(drawRect.right() - 2)
             qp.drawRect(drawRect)
             qp.end()
             self.updateImgFlag = False
