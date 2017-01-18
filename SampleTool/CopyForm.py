@@ -34,6 +34,9 @@ class CopyForm(QtGui.QWidget):
             QApplication.postEvent(self, QEvent(174))
             event.accept()
             # print self.frameGeometry().topLeft()
+        elif event.button() == Qt.RightButton:
+            # print event
+            self.ui.popmenu.exec_(event.globalPos())
 
     def mouseMoveEvent(self, event):
         if event.buttons() == Qt.LeftButton:
