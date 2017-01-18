@@ -28,15 +28,30 @@ class UI_CopyForm(object):
         self.setupUi(Form)
 
     def setupUi(self, Form):
+        self.mainForm = Form
         Form.setObjectName(_fromUtf8("Form"))
         # Form.resize(self.mainWid.widSize)
         self.label = QtGui.QLabel(Form)
         self.label.setGeometry(0, 0, self.mainWid.widSize.width(), self.mainWid.widSize.height())
         self.label.setObjectName(_fromUtf8("label"))
         # self.label.setText('aa')
+        self.setPopMenu()
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
+
+    def setPopMenu(self):
+        self.popmenu = QtGui.QMenu(self.mainForm)
+        action_resize = QtGui.QAction("&resize", self.mainForm)
+        action_exit = QtGui.QAction("&close", self.mainForm)
+        self.popmenu.addActions([action_resize, action_exit])
+
+        ## connect envent
+        action_exit.triggered.connect(self.mainForm.close)
+        action_resize.triggered.connect(self.createResizeWid)
+
+    def createResizeWid(self):
+        pass
 
     def retranslateUi(self, Form):
         # self.label.setText(_translate("Form", "TextLabel", None))

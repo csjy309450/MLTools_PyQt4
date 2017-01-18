@@ -60,6 +60,7 @@ class UI_SampleMainForm(object):
         self.HSlider_copyWidScale.setObjectName(_fromUtf8("HSlider_copyWidScale"))
         #控制图片的分辨率
         self.HSlider_imgScale = QtGui.QSlider(self.VLayoutWidget)
+        self.HSlider_imgScale.setCursor(QtGui.QCursor(QtCore.Qt.SizeHorCursor))
         self.HSlider_imgScale.setOrientation(QtCore.Qt.Horizontal)
         self.HSlider_imgScale.setObjectName(_fromUtf8("HSlider_imgScale"))
 
