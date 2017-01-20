@@ -7,6 +7,7 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+import ResizeForm
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -48,10 +49,16 @@ class UI_CopyForm(object):
 
         ## connect envent
         action_exit.triggered.connect(self.mainForm.close)
-        action_resize.triggered.connect(self.createResizeWid)
+        action_resize.triggered.connect(self.createResizeDlg)
 
-    def createResizeWid(self):
-        pass
+    def createResizeDlg(self):
+        resizeForm = ResizeForm.ResizeForm(self.mainForm)
+        if resizeForm.getValue() == ResizeForm.Dialog_ID['ID_OK']:
+            newSize = resizeForm.GetNewSize()
+            newGeo = self.mainForm.geometry()
+            newGeo.setSize(newSize)
+            self.mainForm.setGeometry(newGeo)
+            self.label.setGeometry(0, 0, newGeo.width(), newGeo.height())
 
     def retranslateUi(self, Form):
         # self.label.setText(_translate("Form", "TextLabel", None))

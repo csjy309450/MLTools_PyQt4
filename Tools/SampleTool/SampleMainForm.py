@@ -4,6 +4,7 @@
 import sys
 from PyQt4 import QtGui, QtCore
 import UI_SampleMainForm as ui_smf
+import mySignal
 
 class SampleMainWidget(QtGui.QMainWindow):
     def __init__(self):
@@ -18,6 +19,16 @@ class SampleMainWidget(QtGui.QMainWindow):
     def __getScorllAreaClientSize(self):
         return self.UI.scrollArea.size() - QtCore.QSize(self.UI.scrollArea.verticalScrollBar().width(),
                                                         self.UI.scrollArea.horizontalScrollBar().height())
+
+    @QtCore.pyqtSlot("PyQt_PyObject")
+    def On_Key_CopyForm(self, _key):
+        # print _key
+        if _key == 'e':
+            self.UI.On_Action_Next(None)
+        elif _key == 'q':
+            self.UI.On_Action_Previous(None)
+        else:
+            pass
 
     def resizeEvent(self, QResizeEvent):
         if self.initFlag:

@@ -33,7 +33,7 @@ class UI_SampleMainForm(object):
         :param Form:
         :return:
         """
-        self.mainframe = Form
+        self.mainForm = Form
         Form.setObjectName(_fromUtf8("Form"))
         Form.setWindowModality(QtCore.Qt.NonModal)
         Form.resize(705, 579)
@@ -106,22 +106,22 @@ class UI_SampleMainForm(object):
         self.__InitMenubar()
 
     def __InitMenubar(self):
-        action_exit = QtGui.QAction(QtGui.QIcon(), '&exit', self.mainframe)
-        action_exit.triggered.connect(self.mainframe.close)
+        action_exit = QtGui.QAction(QtGui.QIcon(), '&exit', self.mainForm)
+        action_exit.triggered.connect(self.mainForm.close)
 
-        action_load = QtGui.QAction(QtGui.QIcon(), '&load', self.mainframe)
+        action_load = QtGui.QAction(QtGui.QIcon(), '&load', self.mainForm)
         action_load.triggered.connect(self.On_Action_Load)
 
-        action_next = QtGui.QAction(QtGui.QIcon(), '&next', self.mainframe)
+        action_next = QtGui.QAction(QtGui.QIcon(), '&next', self.mainForm)
         action_next.triggered.connect(self.On_Action_Next)
 
-        action_previous = QtGui.QAction(QtGui.QIcon(), '&previous', self.mainframe)
+        action_previous = QtGui.QAction(QtGui.QIcon(), '&previous', self.mainForm)
         action_previous.triggered.connect(self.On_Action_Previous)
 
-        action_screenShot = QtGui.QAction(QtGui.QIcon(), '&screen shot', self.mainframe)
+        action_screenShot = QtGui.QAction(QtGui.QIcon(), '&screen shot', self.mainForm)
         action_screenShot.triggered.connect(self.On_Action_ScreenShot)
 
-        menubar = self.mainframe.menuBar()
+        menubar = self.mainForm.menuBar()
         fileMenu = menubar.addMenu('&file')
         fileMenu.addAction(action_load)
         fileMenu.addAction(action_next)
@@ -130,7 +130,7 @@ class UI_SampleMainForm(object):
         fileMenu.addAction(action_exit)
 
     def On_Action_Load(self, event):
-        self.filePathsList = QtGui.QFileDialog.getOpenFileNames(self.mainframe, 'Open file',  '/home')
+        self.filePathsList = QtGui.QFileDialog.getOpenFileNames(self.mainForm, 'Open file',  '/home')
         for filePath in self.filePathsList:
             print filePath
         print self.filePathsList.count()
@@ -144,9 +144,9 @@ class UI_SampleMainForm(object):
 
     def showImage(self):
         dis = (abs(self.horizontalLayout.geometry().left() - 0),
-               abs(self.horizontalLayout.geometry().right() - self.mainframe.width()),
+               abs(self.horizontalLayout.geometry().right() - self.mainForm.width()),
                abs(self.horizontalLayout.geometry().top() - 0),
-               abs(self.mainframe.height() - self.scrollArea.geometry().bottom()))
+               abs(self.mainForm.height() - self.scrollArea.geometry().bottom()))
         #从文件夹加载图像
         self.qImg.load(self.filePathsList[self.currentFrameNum])
         #显示到QLabel对象，并调整QLabel对象的尺寸为图像尺寸
@@ -159,26 +159,38 @@ class UI_SampleMainForm(object):
                                                                        self.scrollArea.horizontalScrollBar().height()))
         #求当前图像对象的基础上窗口允许的最大尺寸
         # print self.horizontalLayout.geometry()
-        # print self.mainframe.size()
+        # print self.mainForm.size()
         # print self.scrollArea.geometry()
         # print dis
-        self.mainframe.setMaximumSize(self.scrollArea.maximumSize() + QtCore.QSize(
+        self.mainForm.setMaximumSize(self.scrollArea.maximumSize() + QtCore.QSize(
             dis[0]+dis[1], self.HSlider_imgScale.height()+dis[2]+dis[3]))
 
     def On_Action_Next(self, event):
         if self.currentFrameNum + 1 < self.filePathsList.count():
             self.currentFrameNum += 1
             self.showImage()
-        self.mainframe.repaint()
+        self.mainForm.repaint()
+        try:
+            self.copyForm.UpdateImg()
+        except Exception, e:
+            pass
 
     def On_Action_Previous(self, event):
         if self.currentFrameNum - 1 >= 0:
             self.currentFrameNum -= 1
             self.showImage()
-        self.mainframe.repaint()
+        self.mainForm.repaint()
+        try:
+            self.copyForm.UpdateImg()
+        except Exception, e:
+            pass
 
     def On_Action_ScreenShot(self, event):
         self.copyForm = cf.CopyForm(self.qImg, self.scrollArea)
+        # self.mainForm.connect(self.copyForm._sinal, QtCore.SIGNAL('Signal_Key(PyQt_PyObject)'),
+        #                       self.mainForm, QtCore.SLOT("On_Key_CopyForm(PyQt_PyObject)"))
+        self.mainForm.connect(self.copyForm, QtCore.SIGNAL('Signal_Key(PyQt_PyObject)'),
+                              self.mainForm, QtCore.SLOT("On_Key_CopyForm(PyQt_PyObject)"))
 
     def retranslateUi(self, Form):
         """
