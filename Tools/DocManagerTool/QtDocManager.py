@@ -9,7 +9,7 @@
 
 from PyQt4 import QtCore, QtGui
 import QtDocTree as dt
-import DocManager
+from Core import DocManager
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -103,7 +103,7 @@ class Ui_QW_DocManager(QtGui.QMainWindow):
         dirPath = self.lineEdit.text().__str__()
         if not os.path.isdir(dirPath):
             return
-        self.docCore = DocManager.dm.DocManager()
+        self.docCore = DocManager.DocManager.DocManager()
         self.docCore.GetCatalogList(dirPath)
         print repr(self.docCore)
         self.docTree = dt.Ui_QW_DocTree()
