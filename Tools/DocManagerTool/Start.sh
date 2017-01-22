@@ -1,2 +1,5 @@
-cd /home/yangzheng/myPrograms/MLTools_PyQt4
-python ./DocManager_shell/DocManager_main.py
+#!/bin/sh
+basepath=$(dirname $0)
+echo $basepath
+cd $basepath
+python ./DocManager_main.py
