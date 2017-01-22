@@ -1,0 +1,1 @@
+Compress directory 'myProgram\test' the test data in program files and move it into myShare

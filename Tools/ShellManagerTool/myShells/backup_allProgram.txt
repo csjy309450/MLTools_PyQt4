@@ -1,0 +1,1 @@
+Compress directory 'myProgram' and move it into myShare
