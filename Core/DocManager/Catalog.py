@@ -2,7 +2,7 @@
 # -*-encoding=utf-8-*-
 
 import os
-from CatalogException import*
+from DocException import*
 
 OKGREEN = '\033[92m'
 ENDC = '\033[0m'
@@ -15,7 +15,7 @@ class CatalogItem:
         if isinstance(_name, str) and _name != None:
             self.__name = self.setName(_name)
         else:
-            raise CatalogException('Parameter \'_name\' must be object str.')
+            raise DocException('Parameter \'_name\' must be object str.')
 
         if _parent == None:
             self.__parent = None
@@ -23,7 +23,7 @@ class CatalogItem:
             if isinstance(_parent, CatalogItem):
                 self.__parent = _parent
             else:
-                raise CatalogException('Parameter \'_parent\' must be object CatalogItem.')
+                raise DocException('Parameter \'_parent\' must be object CatalogItem.')
 
         if _children == None:
             self.__children = None
@@ -33,7 +33,7 @@ class CatalogItem:
             if isinstance(_children, CatalogList):
                 self.__children = _children
             else:
-                raise CatalogException('Parameter \'_children\' must be object CatalogList.')
+                raise DocException('Parameter \'_children\' must be object CatalogList.')
     
     def name(self):
         return self.__name
@@ -54,13 +54,13 @@ class CatalogItem:
         if isinstance(_parent, CatalogItem):
             self.__parent = _parent
         else:
-            raise CatalogException('Parameter \'_parent\' must be object CatalogItem.')
+            raise DocException('Parameter \'_parent\' must be object CatalogItem.')
 
     def setChildren(self, _children):
         if isinstance(_children, CatalogList):
             self.__children = _children
         else:
-            raise CatalogException('Parameter \'_children\' must be object CatalogList.')
+            raise DocException('Parameter \'_children\' must be object CatalogList.')
         return self.__children
 
     def isFile(self):
@@ -81,7 +81,7 @@ class CatalogList:
             self.__catalogList.append(_item)
             # self.__indexList.append(_item.absName())
         else:
-            raise CatalogException('Parameter \'_name\' must be object CatalogItem.')
+            raise DocException('Parameter \'_name\' must be object CatalogItem.')
 
     def removeItem(self, _name):
         if isinstance(_name, str):
@@ -89,7 +89,7 @@ class CatalogList:
                 if it.absname() == _name:
                     self.__catalogList.remove(it)
         else:
-            raise CatalogException('Parameter \'_name\' must be object str.')
+            raise DocException('Parameter \'_name\' must be object str.')
 
     def catalogList(self):
         return self.__catalogList
@@ -101,6 +101,8 @@ class CatalogList:
         return OKGREEN + '<' + self.dirPath()+'>\n'+getTree(self) + ENDC
 
 def getTree(_catalogList, _nspace=''):
+    if not isinstance(_catalogList, CatalogList):
+        raise DocException('param \'_catalogList\' must be CatalogList obj')
     t_str = ''
     for item in _catalogList.catalogList():
         if item.absName() != '':
@@ -126,7 +128,7 @@ def main():
     b = CatalogItem('root', None, c)
     try:
         a = CatalogItem('test.txt', b, None)
-    except CatalogException, e:
+    except DocException, e:
         e.what()
     print a.name()
 

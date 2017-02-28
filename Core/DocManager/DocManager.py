@@ -4,6 +4,7 @@
 import os
 import os.path
 import Catalog
+from DocException import*
 
 class DocManager:
     """
@@ -11,16 +12,31 @@ class DocManager:
     """
     def __init__(self, _docFilter=['.doc', '.py', '.md']):
         """
-        :param docFilter: interesting documents' extension name
+        构造DocManager对象,初始化文件筛选器
+        :param _docFilter: interesting documents' extension name
         """
-        # self.docList = []
+        if type(_docFilter) is not list or _docFilter != None:
+            raise DocException('param \'_docFilter\' must be list or None.')
         self.__docFilter = _docFilter
-        # self.GetDocList()
 
     def ResetFilter(self, newFilter):
+        """
+        重置文件筛选器
+        :param newFilter:
+        :return:
+        """
+        if type(newFilter) is not list:
+            raise DocException('param \'newFilter\' must be list.')
         self.__docFilter = newFilter
 
     def AddFilter(self, afilter):
+        """
+        原有基础上增加文件筛选器
+        :param afilter:
+        :return:
+        """
+        if type(afilter) is not str:
+            raise DocException('param \'afilter\' must be list.')
         self.__docFilter.append(afilter)
     
     def ShowFilter(self):
@@ -66,6 +82,11 @@ class DocManager:
         return dirHaveRightDoc
 
     def GetCatalogList(self, dirPath):
+        """
+        使用__dirSearch()方法搜索指定目录文件,放入list对象self.docList(只有用这个函数搜索才产生此对象)
+        :param dirPath:
+        :return:
+        """
         self.docList = []
         self.__dirSearch(dirPath)
         return self.docList
@@ -101,13 +122,24 @@ class DocManager:
             return dirHaveRightDoc
 
     def GetCatalogTree(self, dirPath):
+        """
+        使用__dirSearch1()方法搜索目录,产生CatalogList对象,存放独有成员self.catalogTree
+        :param dirPath:
+        :return:
+        """
         self.catalogTree = Catalog.CatalogList(dirPath)
         self.__dirSearch1(self.catalogTree)
         return self.catalogTree
 
     def __dirSearch2(self, dirPath, deep=0):
         """
-        根据深度deep搜索文件夹文件
+        根据深度deep搜索文件夹文件,结果存放在self.docList中.此种方式忽略文件是否放在文件夹的子目录中.
+        存放格式:
+        [
+            filepath0,
+            filepath1,
+            ...
+        ]
         :param dirPath: 文件夹路径
         :param deep: 文件夹搜索深度
         :return:

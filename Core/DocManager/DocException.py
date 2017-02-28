@@ -9,8 +9,8 @@ ERROR = '\033[31m'
 FAIL = '\033[91m'
 ENDC = '\033[0m'
 
-class CatalogException(BaseException):
+class DocException(BaseException):
     def __init__(self, _message):
         self.message = _message
     def what(self):
-        print ERROR + '<Catalog Exception> ' + self.message + ENDC
+        print ERROR + '<Document Exception> ' + self.message + ENDC
