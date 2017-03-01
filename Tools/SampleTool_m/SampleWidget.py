@@ -2,8 +2,11 @@
 # -*-encoding=utf-8-*-
 
 import sys
+import os.path as path
+import numpy as np
 from PyQt4 import QtGui, QtCore
 import CopyWidget as cw
+import ImgLabel as il
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -18,12 +21,17 @@ try:
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+    
+Mode_ScreenShot = {
+    'Mode_None': 0,
+    'Mode_CopyWidgetShot': 1,
+    'Mode_HandShot': 2,
+    }
 
 class SampleWidget(QtGui.QWidget):
     def __init__(self):
         super(SampleWidget, self).__init__()
         ##初始化UI
-        self.initFlag = True
         self.initialMemberVairables()
         self.setupUi()
 
@@ -31,6 +39,8 @@ class SampleWidget(QtGui.QWidget):
         self.filePathsList = None
         self.qImg = None
         self.currentFrameNum = -1
+        self.initFlag = True
+        self.screenShotFlag = Mode_ScreenShot['Mode_None']
 
     def setupUi(self):
         """
@@ -40,12 +50,14 @@ class SampleWidget(QtGui.QWidget):
         """
         self.setObjectName(_fromUtf8("SampleWidget"))
         self.setWindowModality(QtCore.Qt.NonModal)
-        self.resize(100, 100)
+        self.resize(500, 500)
+        # self.setFixedSize(400, 400)
+        # self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        # self.setFixedSize(100, 100)
 
         ##对象成员变量
         # QLable控件中的显示图像
         self.qImg = QtGui.QPixmap()
-        self.currentFrameNum = -1
         self.filePathsList = QtCore.QStringList()
 
         #获取窗口大小
@@ -74,7 +86,8 @@ class SampleWidget(QtGui.QWidget):
         self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
         self.scrollAreaWidgetContents.setMinimumSize(100, 100)
         # 定义滑动区域面板内的QLabel对象
-        self.label = QtGui.QLabel(self.scrollAreaWidgetContents)
+        self.label = il.ImgLabel(self.scrollAreaWidgetContents)
+        self.label.setText(QtCore.QString('a test'))
         # self.label.setGeometry(QtCore.QRect(0, 0, 500, 500))
         # self.label.setPixmap(self.img)
         # self.label.setGeometry(self.img.rect())
@@ -166,6 +179,13 @@ class SampleWidget(QtGui.QWidget):
             self.VLayoutWidget.setGeometry(newGeometry)
             # print 'VLayoutWidget', newGeometry
             # self.repaint()
+
+    def keyPressEvent(self, QKeyEvent):
+        if QKeyEvent.text() == 'e':
+            self.On_Action_Next(None)
+            # self._sinal.myEmit()
+        elif QKeyEvent.text() == 'q':
+            self.On_Action_Previous(None)
             
     def On_Action_Load(self, event):
         self.filePathsList = QtGui.QFileDialog.getOpenFileNames(self, 'Open file',  '/home/yangzheng/testData/ucsd')
@@ -196,6 +216,8 @@ class SampleWidget(QtGui.QWidget):
             pass
 
     def On_Action_ScreenShot_cp(self, event):
+        self.screenShotFlag = Mode_ScreenShot['Mode_CopyWidgetShot']
+        self.label.setScreenShotMode(self.screenShotFlag)
         self.copyForm = cw.CopyForm(self.qImg, self.scrollArea)
         # self.connect(self.copyForm._sinal, QtCore.SIGNAL('Signal_Key(PyQt_PyObject)'),
         #                       self, QtCore.SLOT("On_Key_CopyForm(PyQt_PyObject)"))
@@ -203,9 +225,26 @@ class SampleWidget(QtGui.QWidget):
                               self, QtCore.SLOT("On_Key_CopyForm(PyQt_PyObject)"))
 
     def On_Action_ScreenShot_hd(self, event):
-        pass
+        self.screenShotFlag = Mode_ScreenShot['Mode_HandShot']
+        self.label.setScreenShotMode(self.screenShotFlag)
 
-    @QtCore.pyqtSlot("PyQt_PyObject")
+    def On_Action_Start2EndArray(self, event):
+        a = self.label.getStart2EndArray()
+        result = np.empty((0, 4), dtype=np.int16)
+        for it in a:
+            result = np.row_stack([result, [(it[0].x()+it[1].x()+1)/2, (it[0].y()+it[1].y()+1)/2, abs(it[0].x()-it[1].x()),
+                           abs(it[0].y()-it[1].y())]])
+
+        filePath = path.splitext(str(self.filePathsList[self.currentFrameNum]))[0]
+        np.save(filePath + '.npy', result)
+        # print a
+        print result
+        print filePath + '.npy'
+
+
+    def On_MousePress(self, event):
+        print event
+
     def On_Key_CopyForm(self, _key):
         # print _key
         if _key == 'e':
@@ -215,6 +254,11 @@ class SampleWidget(QtGui.QWidget):
         else:
             pass
 
+    def setPixmap(self, qImg):
+        self.label.resetStart2EndArray()
+        self.label.setPixmap(qImg)
+        self.label.setGeometry(qImg.rect())
+
     def showImage(self):
         dis = (abs(self.horizontalLayout.geometry().left() - 0),
                abs(self.horizontalLayout.geometry().right() - self.width()),
@@ -223,8 +267,7 @@ class SampleWidget(QtGui.QWidget):
         #从文件夹加载图像
         self.qImg.load(self.filePathsList[self.currentFrameNum])
         #显示到QLabel对象，并调整QLabel对象的尺寸为图像尺寸
-        self.label.setPixmap(self.qImg)
-        self.label.setGeometry(self.qImg.rect())
+        self.setPixmap(self.qImg)
         # #设置 QScrollArea 对象中 QWidget 区域的大小
         self.scrollAreaWidgetContents.setMinimumSize(self.qImg.size())
         # # #根据图像大小调整scrollArea大小

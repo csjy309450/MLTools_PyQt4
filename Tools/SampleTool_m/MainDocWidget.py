@@ -12,6 +12,10 @@ QtCore.QTextCodec.setCodecForTr(QtCore.QTextCodec.codecForName("utf8"))
 class MainDockWidget(QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(MainDockWidget, self).__init__(parent)
+        self.setupUI()
+        self.show()
+
+    def setupUI(self):
         self.setWindowTitle(self.tr("依靠窗口"))
 
         # 主窗口(采样窗口), SampleWidget对象
@@ -20,18 +24,20 @@ class MainDockWidget(QtGui.QMainWindow):
 
         # 停靠窗口1
         dock1 = QtGui.QDockWidget(self.tr("停靠窗口1"), self)
+        dock1.setMinimumSize(300, 500) #对QTextEdit对象貌似width不能小于265
         dock1.setFeatures(QtGui.QDockWidget.AllDockWidgetFeatures)
         dock1.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea)
         te1 = QtGui.QTextEdit(self.tr("窗口1,可在Main Window的左部和右部停靠，不可浮动，不可关闭"))
         dock1.setWidget(te1)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock1)
-        #
+
         # # 停靠窗口2
         # dock2 = QtGui.QDockWidget(self.tr("停靠窗口2"), self)
         # dock2.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetClosable)
         # te2 = QtGui.QTextEdit(self.tr("窗口2,只可浮动"))
         # dock2.setWidget(te2)
-        # self.addDockWidget(QtCore.Qt.RightDockWidgetArea, dock2)
+        # self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dock2)
+        # print te2.size()
         #
         # # 停靠窗口3
         # dock3 = QtGui.QDockWidget(self.tr("停靠窗口3"), self)
@@ -40,14 +46,19 @@ class MainDockWidget(QtGui.QMainWindow):
         # dock3.setWidget(te3)
         # self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, dock3)
 
+        #调整窗口大小
+        centralWidSize = self.centralWidget().size()
+        dock1Size = dock1.size()
+        self.resize(dock1Size.width()+centralWidSize.width(), centralWidSize.height())
+
         self.__InitMenubar()
-        self.show()
 
     def __InitMenubar(self):
         action_exit = QtGui.QAction(QtGui.QIcon(), '&exit', self)
         action_exit.triggered.connect(self.close)
 
         action_load = QtGui.QAction(QtGui.QIcon(), '&load', self)
+        action_load.setShortcut('Ctrl+1')
         action_load.triggered.connect(self.sampleWidget.On_Action_Load)
 
         action_next = QtGui.QAction(QtGui.QIcon(), '&next', self)
@@ -57,14 +68,21 @@ class MainDockWidget(QtGui.QMainWindow):
         action_previous.triggered.connect(self.sampleWidget.On_Action_Previous)
 
         action_screenShot_cp = QtGui.QAction(QtGui.QIcon(), '&screen shot by copy form', self)
+        action_screenShot_cp.setShortcut('Ctrl+3')
         action_screenShot_cp.triggered.connect(self.sampleWidget.On_Action_ScreenShot_cp)
 
         action_screenShot_hd = QtGui.QAction(QtGui.QIcon(), '&screen shot by hand', self)
+        action_screenShot_hd.setShortcut('Ctrl+4')
         action_screenShot_hd.triggered.connect(self.sampleWidget.On_Action_ScreenShot_hd)
+
+        action_Start2EndArray = QtGui.QAction(QtGui.QIcon(), '&print Start 2 End Array', self)
+        action_Start2EndArray.setShortcut('Ctrl+2')
+        action_Start2EndArray.triggered.connect(self.sampleWidget.On_Action_Start2EndArray)
 
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&file')
         fileMenu.addAction(action_load)
+        fileMenu.addAction(action_Start2EndArray)
         fileMenu.addAction(action_next)
         fileMenu.addAction(action_previous)
         fileMenu.addAction(action_screenShot_cp)
