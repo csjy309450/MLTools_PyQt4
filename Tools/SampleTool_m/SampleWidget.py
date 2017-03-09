@@ -36,8 +36,10 @@ class SampleWidget(QtGui.QWidget):
         self.setupUi()
 
     def initialMemberVairables(self):
-        self.filePathsList = None
-        self.qImg = None
+        # QLable控件中的显示图像
+        self.qImg = QtGui.QPixmap()
+        self.filePathsList = QtCore.QStringList()
+        self.sample_lables = None
         self.currentFrameNum = -1
         self.initFlag = True
         self.screenShotFlag = Mode_ScreenShot['Mode_None']
@@ -56,9 +58,6 @@ class SampleWidget(QtGui.QWidget):
         # self.setFixedSize(100, 100)
 
         ##对象成员变量
-        # QLable控件中的显示图像
-        self.qImg = QtGui.QPixmap()
-        self.filePathsList = QtCore.QStringList()
 
         #获取窗口大小
         self.widRect = self.frameGeometry()
@@ -162,7 +161,7 @@ class SampleWidget(QtGui.QWidget):
             # if addSize == QtCore.QSize(0, 0):
             #     return
 
-            print "addSize", addSize
+            # print "addSize", addSize
             #调整scrollArea区域大小
             newGeometry = self.scrollArea.geometry()
             newGeometry.setSize(self.scrollArea.size() + addSize)
@@ -188,10 +187,10 @@ class SampleWidget(QtGui.QWidget):
             self.On_Action_Previous(None)
             
     def On_Action_Load(self, event):
-        self.filePathsList = QtGui.QFileDialog.getOpenFileNames(self, 'Open file',  '/home/yangzheng/testData/ucsd')
+        self.filePathsList = QtGui.QFileDialog.getOpenFileNames(self, 'Open file', '/home/yangzheng/testData/ucsd')
         for filePath in self.filePathsList:
             print filePath
-        print self.filePathsList.count()
+        # print self.filePathsList.count()
         self.currentFrameNum = -1
         self.On_Action_Next(None)
 
@@ -199,6 +198,9 @@ class SampleWidget(QtGui.QWidget):
         if self.currentFrameNum + 1 < self.filePathsList.count():
             self.currentFrameNum += 1
             self.showImage()
+            self.parent().setWindowTitle(self.filePathsList[self.currentFrameNum])
+        else:
+            print "<warning> Has already reached the end!"
         self.repaint()
         try:
             self.copyForm.UpdateImg()
@@ -209,6 +211,9 @@ class SampleWidget(QtGui.QWidget):
         if self.currentFrameNum - 1 >= 0:
             self.currentFrameNum -= 1
             self.showImage()
+            self.parent().setWindowTitle(self.filePathsList[self.currentFrameNum])
+        else:
+            print "<warning> Has already reached the initiate!"
         self.repaint()
         try:
             self.copyForm.UpdateImg()
@@ -242,8 +247,8 @@ class SampleWidget(QtGui.QWidget):
         print filePath + '.npy'
 
 
-    def On_MousePress(self, event):
-        print event
+    # def On_MousePress(self, event):
+    #     print event
 
     def On_Key_CopyForm(self, _key):
         # print _key
@@ -280,6 +285,12 @@ class SampleWidget(QtGui.QWidget):
         # print dis
         self.setMaximumSize(self.scrollArea.maximumSize() + QtCore.QSize(
             dis[0]+dis[1], self.HSlider_imgScale.height()+dis[2]+dis[3]))
+
+    def get_file_list(self):
+        return self.filePathsList
+
+    def get_sampleLabels(self):
+        return self.sample_lables
 
     def retranslateUi(self, Form):
         """
