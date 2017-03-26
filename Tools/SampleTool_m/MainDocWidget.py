@@ -135,8 +135,11 @@ class MainDockWidget(QtGui.QMainWindow):
         ## 停靠窗口: terminal
         self.dock_term = QtGui.QDockWidget(self.tr("Terminal"), self)
         self.dock_term.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetClosable)
-        term_wid = pyqtterm.TerminalWidget(self)
-        term_wid.setMinimumSize(800, 200)
+        term_size = (790, 200)
+        term_size_ = (790, 190)
+        self.dock_term.setFixedSize(term_size[0], term_size[1])
+        term_wid = pyqtterm.TerminalWidget(self, font_size=16, widSize=term_size_)
+        # term_wid.setMinimumSize(800, 200)
         self.dock_term.setWidget(term_wid)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.dock_term)
         self.dockWidList.append(["bottom", self.dock_term])
