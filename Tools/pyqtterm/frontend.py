@@ -4,7 +4,7 @@ import time
 
 from PyQt4.QtCore import QRect, Qt, pyqtSignal, QByteArray
 from PyQt4.QtGui import (
-       QApplication, QClipboard, QWidget, QPainter, QFont, QBrush, QColor, 
+       QApplication, QClipboard, QWidget, QPainter, QFont, QBrush, QColor,
        QPen, QPixmap, QImage, QContextMenuEvent, QScrollArea, QPalette)
 
 from .backend import Session
@@ -17,7 +17,7 @@ DEBUG = False
 
 class TerminalWidget(QWidget):
 
-    
+
     foreground_color_map = {
       0: "#000",
       1: "#b00",
@@ -32,7 +32,7 @@ class TerminalWidget(QWidget):
       10: "#0f0",
       11: "#ff0",
       12: "#00f", # concelaed
-      13: "#f0f", 
+      13: "#f0f",
       14: "#000", # negative
       15: "#fff", # default
       'default': "#fff",
@@ -57,26 +57,26 @@ class TerminalWidget(QWidget):
        Qt.Key_AsciiTilde: "~~",
        Qt.Key_Up: "~A",
        Qt.Key_Down: "~B",
-       Qt.Key_Left: "~D", 
-       Qt.Key_Right: "~C", 
-       Qt.Key_PageUp: "~1", 
-       Qt.Key_PageDown: "~2", 
-       Qt.Key_Home: "~H", 
-       Qt.Key_End: "~F", 
+       Qt.Key_Left: "~D",
+       Qt.Key_Right: "~C",
+       Qt.Key_PageUp: "~1",
+       Qt.Key_PageDown: "~2",
+       Qt.Key_Home: "~H",
+       Qt.Key_End: "~F",
        Qt.Key_Insert: "~3",
-       Qt.Key_Delete: "~4", 
+       Qt.Key_Delete: "~4",
        Qt.Key_F1: "~a",
-       Qt.Key_F2: "~b", 
-       Qt.Key_F3:  "~c", 
-       Qt.Key_F4:  "~d", 
-       Qt.Key_F5:  "~e", 
-       Qt.Key_F6:  "~f", 
-       Qt.Key_F7:  "~g", 
-       Qt.Key_F8:  "~h", 
-       Qt.Key_F9:  "~i", 
-       Qt.Key_F10:  "~j", 
-       Qt.Key_F11:  "~k", 
-       Qt.Key_F12:  "~l", 
+       Qt.Key_F2: "~b",
+       Qt.Key_F3:  "~c",
+       Qt.Key_F4:  "~d",
+       Qt.Key_F5:  "~e",
+       Qt.Key_F6:  "~f",
+       Qt.Key_F7:  "~g",
+       Qt.Key_F8:  "~h",
+       Qt.Key_F9:  "~i",
+       Qt.Key_F10:  "~j",
+       Qt.Key_F11:  "~k",
+       Qt.Key_F12:  "~l",
     }
 
 
@@ -89,10 +89,11 @@ class TerminalWidget(QWidget):
         def draw(self, char):
             self.widget.update()
 
-    def __init__(self, parent=None, command="/bin/bash", 
+    def __init__(self, parent=None, command="/bin/bash",
                  font_name="Monospace", font_size=15, widSize=(800,500)):
         super(TerminalWidget, self).__init__(parent)
-        self.setFixedSize(widSize[0], widSize[1])
+        # self.setFixedSize(widSize[0], widSize[1])
+
         self.setFocusPolicy(Qt.WheelFocus)
         self.setAutoFillBackground(False)
         self.setAttribute(Qt.WA_OpaquePaintEvent, True)
@@ -131,7 +132,7 @@ class TerminalWidget(QWidget):
         brash = QBrush(QColor(_color))
         self._brash[color] = brash
         return brash
-        
+
     def execute(self, command="/bin/bash"):
         self._session = Session(cmd=command)
         self._session.stream.attach(self._draw_screen)
@@ -139,7 +140,7 @@ class TerminalWidget(QWidget):
         self._session.start()
         self._screen = self._session.screen
 
-            
+
     def send(self, s):
         self._session.write(s)
 
@@ -154,22 +155,26 @@ class TerminalWidget(QWidget):
         super(TerminalWidget, self).setFont(font)
         self._update_metrics()
 
-        
+    def flash(self):
+        text = u""
+        self.send(text.encode("utf-8"))
+
     def resizeEvent(self, event):
         self._columns, self._rows = self._pixel2pos(self.width(), self.height())
         ## 调整session的尺寸，但有bug
         self._session.resize(self._columns, self._rows)
         # self._session.resize(500, 500)
 
+        ## 跟新文字区域大小
         self._margins = [
             QRect(
                 0,
-                self._rows * self._char_height,
+                (self._rows) * self._char_height,
                 self.width(),
                 self._char_height,
             ),
             QRect(
-                self._columns * self._char_width,
+                (self._columns) * self._char_width,
                 0,
                 self._char_width,
                 self.height(),
@@ -177,9 +182,9 @@ class TerminalWidget(QWidget):
         ]
 
         # XXX: should pyte handle this for me?
+        ## 调整窗口大小后，需要跟新新窗口尺寸下容纳多少行
         self._screen.dirty.update(range(self._rows))
-
-
+        self.flash()
 
     def closeEvent(self, event):
         self._session.proc_bury()
@@ -191,20 +196,21 @@ class TerminalWidget(QWidget):
 
     def update_screen(self):
         self.update()
-        
+
     def paintEvent(self, event):
         painter = QPainter(self)
         if self._screen.dirty:
             self._paint_screen(painter, self._screen.dirty)
 
         if self._margins:
-            bot, right = self._margins
+            bottom, right = self._margins
             painter.fillRect(right, self.brash('default'))
-            painter.fillRect(bot, self.brash('default'))
+            painter.fillRect(bottom, self.brash('default'))
             self._margins = []
 
 
     def _pixel2pos(self, x, y):
+        ## 计算每一行/列容纳多少字符，即计算目前窗口容纳多少行多少列
         col = int(round(x / self._char_width))
         row = int(round(y / self._char_height))
         return col, row
@@ -225,8 +231,11 @@ class TerminalWidget(QWidget):
         painter_setPen = painter.setPen
         align = Qt.AlignTop | Qt.AlignLeft
         # set defaults
+        # lines_ = range(len(lines)-self._rows, len(lines))
         while lines:
             line = lines.pop()
+            # if line not in lines_:
+            #     continue
 
             if line >= len(self._screen.buffer):
                 continue

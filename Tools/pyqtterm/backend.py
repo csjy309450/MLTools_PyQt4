@@ -20,6 +20,11 @@ import Core.pyte as pyte
 __version__ = "0.1"
 
 def synchronized(func):
+    """
+    装饰器，在执行func()之前执行，用于进程加锁（同步）
+    :param func: 
+    :return: 
+    """
     def wrapper(self, *args, **kwargs):
         try:
             self.lock.acquire()
