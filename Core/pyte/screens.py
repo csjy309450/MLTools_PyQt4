@@ -228,8 +228,10 @@ class Screen(object):
         # set every `n` spaces when the terminal is powered up. Since
         # we aim to support VT102 / VT220 and linux -- we use n = 8.
         self.tabstops = set(range(7, self.columns, 8))
-
-        self.cursor = Cursor(0, 0)
+        try:
+            self.cursor = Cursor(self.cursor.x, self.cursor.y)
+        except Exception, e:
+            self.cursor = Cursor(0, 0)
         self.cursor_position()
 
     def resize(self, lines=None, columns=None):
@@ -263,7 +265,18 @@ class Screen(object):
         # b) if the current display size is greater than requested
         #    size, take lines off the top.
         elif diff > 0:
+            for indx in xrange(len(self.buffer)):
+                if self.buffer[indx][2].data==u' ':
+                    # print indx
+                    break
+            if indx < lines:
+                self.buffer[diff:diff+indx] = self.buffer[0:indx]
+                self.cursor.y = indx
+            else:
+                self.cursor.y = lines+1
             self.buffer[:diff] = ()
+
+
 
         # Then resize the columns:
         diff = self.columns - columns
@@ -785,7 +798,7 @@ class Screen(object):
             if not self.margins.top <= line <= self.margins.bottom:
                 return
 
-        self.cursor.x, self.cursor.y = column, line
+        # self.cursor.x, self.cursor.y = column, line
         self.ensure_bounds()
 
     def cursor_to_column(self, column=None):

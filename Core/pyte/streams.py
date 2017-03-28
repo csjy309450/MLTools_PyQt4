@@ -144,6 +144,7 @@ class Stream(object):
             raise TypeError("%s requires str input" % self.__class__.__name__)
 
         try:
+            # print self.handlers.get(self.state)
             self.handlers.get(self.state)(char)
         except TypeError:
             pass
