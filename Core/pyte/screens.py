@@ -273,7 +273,8 @@ class Screen(object):
                 self.buffer[diff:diff+indx] = self.buffer[0:indx]
                 self.cursor.y = indx
             else:
-                self.cursor.y = lines+1
+                self.cursor.y = lines
+            # 删除多余buffer項，从顶开始删
             self.buffer[:diff] = ()
 
 
