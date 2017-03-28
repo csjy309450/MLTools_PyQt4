@@ -70,6 +70,7 @@ class MainDockWidget(QtGui.QMainWindow):
                 mainWidSize.setHeight(height)
         self.resize(mainWidSize)
 
+
     def __setUpMenubar(self):
         action_exit = QtGui.QAction(QtGui.QIcon(), '&exit', self)
         action_exit.triggered.connect(self.close)
@@ -135,12 +136,12 @@ class MainDockWidget(QtGui.QMainWindow):
         ## 停靠窗口: terminal
         self.dock_term = QtGui.QDockWidget(self.tr("Terminal"), self)
         self.dock_term.setFeatures(QtGui.QDockWidget.DockWidgetFloatable | QtGui.QDockWidget.DockWidgetClosable)
-        term_size = (790, 200)
+        # term_size = (790, 200)
         term_size_ = (790, 190)
-        self.dock_term.setFixedSize(term_size[0], term_size[1])
-        term_wid = pyqtterm.TerminalWidget(self, font_size=16, widSize=term_size_)
-        # term_wid.setMinimumSize(800, 200)
-        self.dock_term.setWidget(term_wid)
+        # self.dock_term.setFixedSize(term_size[0], term_size[1])
+        self.term_wid = pyqtterm.TerminalWidget(self, font_size=16, widSize=term_size_)
+        self.term_wid.setMinimumSize(800, 200)
+        self.dock_term.setWidget(self.term_wid)
         self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.dock_term)
         self.dockWidList.append(["bottom", self.dock_term])
 
@@ -166,6 +167,13 @@ class MainDockWidget(QtGui.QMainWindow):
         button_ok.clicked.connect(self.On_button_ok)
 
         self.resizeMainWid()
+
+    def resizeEvent(self, QResizeEvent):
+        try:
+            # self.dock_term.repaint()
+            self.term_wid.flash()
+        except Exception,e:
+            pass
 
     def On_Action_ShowDockTools(self, event):
         try:
