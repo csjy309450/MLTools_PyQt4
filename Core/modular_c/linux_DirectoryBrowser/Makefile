@@ -14,6 +14,8 @@ CFLAGS = -g -ggdb -Wall -I${DIR_INC}
 
 
 $(BIN_TARGET):./main.cpp $(DIR_OBJ)/myDirBrowser.o
+	if [ ! -d ${DIR_OBJ} ];then mkdir ${DIR_OBJ};fi
+	if [ ! -d ${DIR_BIN} ];then mkdir ${DIR_BIN};fi
 	$(CC) -o $@ -I$(CFLAGS) ./main.cpp $(DIR_OBJ)/myDirBrowser.o
 
 $(DIR_OBJ)/myDirBrowser.o:$(DIR_SRC)/myDirBrowser.cpp
