@@ -1,3 +1,4 @@
 import DocManagerTool
 import SampleTool
 import ShellManagerTool
+import SampleTool_m
