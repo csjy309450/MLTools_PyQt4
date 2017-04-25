@@ -26,6 +26,7 @@ Mode_ScreenShot = {
     'Mode_None': 0,
     'Mode_CopyWidgetShot': 1,
     'Mode_HandShot': 2,
+    'Mode_PointLabel': 3,
     }
 
 class SampleWidget(QtGui.QWidget):
@@ -234,6 +235,11 @@ class SampleWidget(QtGui.QWidget):
         self.label.setScreenShotMode(self.screenShotFlag)
 
     def On_Action_Start2EndArray(self, event):
+        """
+        保存从一张图像中截取的若干矩形区域的左上及右下顶点为.npy文件
+        :param event: 
+        :return: 
+        """
         a = self.label.getStart2EndArray()
         result = np.empty((0, 4), dtype=np.int16)
         for it in a:
@@ -241,7 +247,7 @@ class SampleWidget(QtGui.QWidget):
                            abs(it[0].y()-it[1].y())]])
 
         filePath = path.splitext(str(self.filePathsList[self.currentFrameNum]))[0]
-        np.save(filePath + '.npy', result)
+        np.save(filePath + '_rect_label.npy', result)
         # print a
         print result
         print filePath + '.npy'
@@ -249,6 +255,19 @@ class SampleWidget(QtGui.QWidget):
 
     # def On_MousePress(self, event):
     #     print event
+
+    def On_Action_startpointlabel(self, event):
+        self.screenShotFlag = Mode_ScreenShot['Mode_PointLabel']
+        self.label.setScreenShotMode(self.screenShotFlag)
+
+    def On_Action_savepointlabel(self, event):
+        point_list = self.label.getStart2EndArray()
+        if type(point_list) is not list and len(point_list) == 0:
+            return False
+        self.sample_lables = np.empty((0, 2), dtype=np.int16)
+        for it in point_list:
+            self.sample_lables = np.row_stack([self.sample_lables, [it.x(), it.y()]])
+        return True
 
     def On_Key_CopyForm(self, _key):
         # print _key

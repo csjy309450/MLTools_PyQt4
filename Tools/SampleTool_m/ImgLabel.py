@@ -42,6 +42,8 @@ class ImgLabel(QtGui.QLabel):
         if self.screenShot_flage == sw.Mode_ScreenShot['Mode_HandShot']:
             self.current_mouse_Start2End[0] = mousePos
             self.mouseDrage = True
+        elif self.screenShot_flage == sw.Mode_ScreenShot['Mode_PointLabel']:
+            self.current_mouse_Start2End[0] = mousePos
         else:
             pass
 
@@ -67,6 +69,12 @@ class ImgLabel(QtGui.QLabel):
                 self.setPixmap(self.currentImg)
                 self.update()
             # print self.current_mouse_Start2End
+        elif self.screenShot_flage == sw.Mode_ScreenShot['Mode_PointLabel'] and self.mouseDrage == False:
+            if mousePos.x() == self.current_mouse_Start2End[0].x() and \
+                mousePos.y() == self.current_mouse_Start2End[0].y():
+                self.Start2EndArray.append(mousePos)
+                self.updateImgFlag = True
+                self.update()
         else:
             pass
         
@@ -88,4 +96,15 @@ class ImgLabel(QtGui.QLabel):
             qp.end()
             # self.setPixmap(self.currentImg_copy)
             self.updateImgFlag = False
+        elif self.updateImgFlag == True and self.screenShot_flage==sw.Mode_ScreenShot['Mode_PointLabel']:
+            qp = QtGui.QPainter()
+            qp.begin(self.currentImg)
+            brush = QtGui.QBrush(QtGui.QColor(255, 0, 0), QtCore.Qt.SolidPattern)
+            qp.setBrush(brush)
+            qp.drawEllipse(self.current_mouse_Start2End[0], 2, 2)
+            qp.end()
+            self.updateImgFlag = False
+            self.setPixmap(self.currentImg)
+        else:
+            pass
         

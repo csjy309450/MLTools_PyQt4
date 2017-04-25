@@ -106,14 +106,24 @@ class MainDockWidget(QtGui.QMainWindow):
         # action_dockwid_terminal.triggered.connect(self.On_Action_ShowDockWid)
         action_dockwid_terminal.triggered.connect(self.On_Action_ShowDockTernimal)
 
-        action_startlabel = QtGui.QAction(QtGui.QIcon(), '&start label', self)
+        action_startcountlabel = QtGui.QAction(QtGui.QIcon(), '&start count label', self)
         # action_window.setShortcut('Ctrl+2')
-        action_startlabel.triggered.connect(self.On_Action_startlabel)
+        action_startcountlabel.triggered.connect(self.On_Action_startcountlabel)
 
-        action_savelabel = QtGui.QAction(QtGui.QIcon(), '&save label', self)
+        action_savecountlabel = QtGui.QAction(QtGui.QIcon(), '&save count label', self)
         # action_window.setShortcut('Ctrl+2')
-        action_savelabel.triggered.connect(self.On_Action_savelabel)
+        action_savecountlabel.triggered.connect(self.On_Action_savecountlabel)
 
+        action_startpointlabel = QtGui.QAction(QtGui.QIcon(), '&start point label', self)
+        # action_window.setShortcut('Ctrl+2')
+        action_startpointlabel.triggered.connect(self.On_Action_startpointlabel)
+
+        action_savepointlabel = QtGui.QAction(QtGui.QIcon(), '&save point label', self)
+        action_savepointlabel.setShortcut('Ctrl+f')
+        action_savepointlabel.triggered.connect(self.On_Action_savepointlabel)
+        
+
+        # 添加文件菜单
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&file')
         fileMenu.addAction(action_load)
@@ -121,16 +131,26 @@ class MainDockWidget(QtGui.QMainWindow):
         fileMenu.addAction(action_previous)
         fileMenu.addAction(action_exit)
 
+        # 添加功能窗口的菜单
         windowMenu = menubar.addMenu('&window')
         windowMenu.addAction(action_dockwid_tools)
         windowMenu.addAction(action_dockwid_terminal)
 
         toolsMenu = menubar.addMenu('&tools')
-        toolsMenu.addAction(action_screenShot_cp)
-        toolsMenu.addAction(action_screenShot_hd)
-        toolsMenu.addAction(action_Start2EndArray)
-        toolsMenu.addAction(action_startlabel)
-        toolsMenu.addAction(action_savelabel)
+        # 添加sample tool二级菜单
+        sampleMenu = toolsMenu.addMenu('&screen shot tools')
+        sampleMenu.addAction(action_screenShot_cp)
+        hd_sampleMenu = sampleMenu.addMenu('&hand shot')
+        hd_sampleMenu.addAction(action_screenShot_hd)
+        hd_sampleMenu.addAction(action_Start2EndArray)
+        # 添加label tool二级菜单
+        labelMenu = toolsMenu.addMenu('&label tools')
+        countlabelMenu = labelMenu.addMenu('&count label')
+        countlabelMenu.addAction(action_startcountlabel)
+        countlabelMenu.addAction(action_savecountlabel)
+        pointlabelMenu = labelMenu.addMenu('&point label')
+        pointlabelMenu.addAction(action_startpointlabel)
+        pointlabelMenu.addAction(action_savepointlabel)
 
     def __setTerminal(self):
         ## 停靠窗口: terminal
@@ -196,14 +216,14 @@ class MainDockWidget(QtGui.QMainWindow):
         self.sampleWidget.On_Action_Next(None)
             
     
-    def On_Action_startlabel(self, event):
+    def On_Action_startcountlabel(self, event):
         if self.sampleWidget.filePathsList.count() == 0:
             print "<warning> Please load samples first!"
             return 
         self.sampleWidget.sample_lables = np.empty(self.sampleWidget.filePathsList.count(), dtype=np.int16)
         self.On_Action_ShowDockWid(None)
 
-    def On_Action_savelabel(self, event):
+    def On_Action_savecountlabel(self, event):
         if type(self.sampleWidget.sample_lables) is not np.ndarray or self.sampleWidget.sample_lables.shape[0] == 0:
             print "<warning> Please label samples first!"
             return
@@ -212,6 +232,21 @@ class MainDockWidget(QtGui.QMainWindow):
         for i in xrange(0, self.sampleWidget.sample_lables.shape[0]):
             f.write(str(self.sampleWidget.filePathsList[i])+"&&&"+str(self.sampleWidget.sample_lables[i])+"\n")
         f.close()
+
+    def On_Action_startpointlabel(self, event):
+        self.sampleWidget.On_Action_startpointlabel(event)
+
+    def On_Action_savepointlabel(self, event):
+        if self.sampleWidget.On_Action_savepointlabel(event) == False:
+            return
+        if type(self.sampleWidget.sample_lables) is not np.ndarray or self.sampleWidget.sample_lables.shape[0] == 0:
+            print "<warning> Please label samples first!"
+            return
+        # file_name = self.sampleWidget.
+        save_path = path.splitext(str(self.sampleWidget.filePathsList[self.sampleWidget.currentFrameNum]))[0] \
+                    + '_point_label.npy'
+        print self.sampleWidget.sample_lables.shape[0], save_path
+        np.save(save_path, self.sampleWidget.sample_lables)
 
 if __name__=='__main__':
     app = QtCore.QCoreApplication(sys.argv)
