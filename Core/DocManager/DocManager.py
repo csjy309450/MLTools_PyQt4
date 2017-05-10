@@ -15,7 +15,7 @@ class DocManager:
         构造DocManager对象,初始化文件筛选器
         :param _docFilter: interesting documents' extension name
         """
-        if type(_docFilter) is not list or _docFilter != None:
+        if type(_docFilter) is not list and _docFilter != None:
             raise DocException('param \'_docFilter\' must be list or None.')
         self.__docFilter = _docFilter
 
@@ -165,6 +165,10 @@ class DocManager:
         if not dirHaveRightDoc:
             del self.docList[-1]
         return dirHaveRightDoc
+
+    def GetFileList(self, dirPath, deep=0):
+        self.docList = []
+        self.__dirSearch2(dirPath, deep)
 
     def __repr__(self):
         """

@@ -5,7 +5,7 @@ import os
 import os.path
 import numpy as np
 import cv2
-import DocManager
+import DocManager.DocManager as dm
 
 def ImageCropping(dirPath, sampleDirName, subRect):
     """
@@ -47,9 +47,9 @@ def ImageReshaping(dirPath, sampleDirName, newShape):
     sampleDir = os.path.join(dirPath, sampleDirName)
     SequenceNum = 0
     os.makedirs(sampleDir)
-    DM = DocManager.DocManager()
+    DM = dm.DocManager()
     DM.ResetFilter(['.jpg'])
-    DM.GetDirTree(dirPath)
+    DM.GetFileList(dirPath, 1)
 
     # t_imgPath = DM.docList[0]
     # t_img = cv2.imread(os.path.join(dirPath, t_imgPath))
@@ -62,7 +62,10 @@ def ImageReshaping(dirPath, sampleDirName, newShape):
     for t_imgPath in DM.docList:
         t_img = cv2.imread(os.path.join(dirPath, t_imgPath))
         tar_img = cv2.resize(t_img, newShape)
-        cv2.imwrite(os.path.join(sampleDir, str(SequenceNum) + '.jpg'), tar_img)
+        # cv2.imwrite(os.path.join(sampleDir, str(SequenceNum) + '.jpg'), tar_img)
+        save_path = os.path.join(dirPath, sampleDirName)
+        save_path = os.path.join(save_path, t_imgPath)
+        cv2.imwrite(save_path, tar_img)
         SequenceNum += 1
 
 def MakeSamplesText(dirPath, txtName, _labelFlag):
@@ -101,12 +104,12 @@ def MakeSamplesText(dirPath, txtName, _labelFlag):
 
 
 def main():
-    dirPath = "/home/yangzheng/testData/BodyDataset/body_28x28/validation"
-    sampleDirName = 'Sample-28x28'
+    dirPath = "/home/yangzheng/testData/mall_dataset/frames"
+    sampleDirName = 'Sample-213x160'
     subRect = (12, 116, 6, 58)
-    newShape = (28, 28)
+    newShape = (213, 160)
     # ImageCropping(dirPath, sampleDirName, subRect)
-    # ImageReshaping(dirPath, sampleDirName, newShape)
+    ImageReshaping(dirPath, sampleDirName, newShape)
 
     # DM = DocManager.DocManager([".jpg"])
     # dirPaths = [
@@ -116,8 +119,8 @@ def main():
     # DM.DirectoriesMerge(dirPaths, "/home/yangzheng/testData/BodyDataset/validation", [".jpg"])
     # DM.GetDirTree("/home/yangzheng/testData/BodyDataset/training")
     # DM.docList.sort()
-    MakeSamplesText("/home/yangzheng/testData/BodyDataset/train", 'train.txt', ((0, 1201), (1, 2402)))
-    MakeSamplesText("/home/yangzheng/testData/BodyDataset/validation", 'validation.txt', ((0, 191), (1, 382)))
+    # MakeSamplesText("/home/yangzheng/testData/BodyDataset/train", 'train.txt', ((0, 1201), (1, 2402)))
+    # MakeSamplesText("/home/yangzheng/testData/BodyDataset/validation", 'validation.txt', ((0, 191), (1, 382)))
     pass
 
     # MakeSamplesText(dirPath, 'body_train.txt', '0')
