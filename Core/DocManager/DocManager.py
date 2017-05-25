@@ -169,6 +169,7 @@ class DocManager:
     def GetFileList(self, dirPath, deep=0):
         self.docList = []
         self.__dirSearch2(dirPath, deep)
+        return self.docList
 
     def __repr__(self):
         """
