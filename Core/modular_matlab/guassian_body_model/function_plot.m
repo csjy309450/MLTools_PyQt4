@@ -16,7 +16,7 @@ head_x = range_x/2;head_y = range_y/2;
 % theta1 = [range_x/2 1 range_y/2 1 0];
 % theta2 = [range_x/2 2 range_y/2+5 4 0];
 
-theta = theta_maker(head_x, head_y, 1);
+theta = theta_maker(head_x, head_y);
 
 for row = 1 : 1 : range_x
     for col = 1 : 1 : range_y
